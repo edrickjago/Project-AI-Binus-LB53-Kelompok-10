@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { useAppContext } from '../../context/AppContext';
 import { formatCurrency } from '../../lib/utils';
 
@@ -585,7 +586,7 @@ export default function AiScannerPage() {
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button className="btn btn-secondary" onClick={resetAll}>{isId ? '📄 Scan Lagi' : '📄 Scan Again'}</button>
-              <a href="/transactions" className="btn btn-primary">{isId ? '💳 Lihat Transaksi' : '💳 View Transactions'}</a>
+              <Link href="/transactions" className="btn btn-primary">{isId ? '💳 Lihat Transaksi' : '💳 View Transactions'}</Link>
             </div>
           </div>
         )}
