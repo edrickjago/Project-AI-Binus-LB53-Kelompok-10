@@ -106,8 +106,6 @@ interface AppContextType {
   getAllJournalEntries: () => JournalEntry[];
   companyProfile: CompanyProfile;
   updateCompanyProfile: (profile: Partial<CompanyProfile>) => void;
-  geminiApiKey: string;
-  setGeminiApiKey: (key: string) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -129,9 +127,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageStore] = useLocalStorage<Language>('kasflow_language', 'en');
   const [customExpenseCategories, setCustomExpense] = useLocalStorage<string[]>('kasflow_customExpense', []);
   const [customIncomeCategories, setCustomIncome] = useLocalStorage<string[]>('kasflow_customIncome', []);
-  const [geminiApiKey, setGeminiApiKeyStore] = useLocalStorage<string>('kasflow_gemini_key', '');
-
-  const setGeminiApiKey = useCallback((key: string) => setGeminiApiKeyStore(key), [setGeminiApiKeyStore]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -360,8 +355,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     exportData, importData, clearData,
     coa, addCoaAccount, updateCoaAccount, deleteCoaAccount,
     manualJournalEntries, addJournalEntry, deleteJournalEntry, getAllJournalEntries,
-    companyProfile, updateCompanyProfile,
-    geminiApiKey, setGeminiApiKey,
+    companyProfile, updateCompanyProfile
   }), [
     transactions, addTransaction, deleteTransaction, updateTransaction, activeTransactions,
     budgets, addBudget, updateBudget, deleteBudget,
@@ -373,8 +367,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     exportData, importData, clearData,
     coa, addCoaAccount, updateCoaAccount, deleteCoaAccount,
     manualJournalEntries, addJournalEntry, deleteJournalEntry, getAllJournalEntries,
-    companyProfile, updateCompanyProfile,
-    geminiApiKey, setGeminiApiKey
+    companyProfile, updateCompanyProfile
   ]);
 
   return (

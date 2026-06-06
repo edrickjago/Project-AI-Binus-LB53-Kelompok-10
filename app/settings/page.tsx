@@ -9,13 +9,11 @@ export default function SettingsPage() {
     allExpenseCategories, allIncomeCategories, customExpenseCategories, customIncomeCategories,
     addExpenseCategory, addIncomeCategory, removeExpenseCategory, removeIncomeCategory,
     exportData, importData, clearData,
-    companyProfile, updateCompanyProfile,
-    geminiApiKey, setGeminiApiKey
+    companyProfile, updateCompanyProfile
   } = useAppContext();
 
   const [newExpCat, setNewExpCat] = useState('');
   const [newIncCat, setNewIncCat] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleImport = () => {
     const input = document.createElement('input');
@@ -74,44 +72,6 @@ export default function SettingsPage() {
               </div>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>{language === 'id' ? '*Data ini akan digunakan sebagai kop surat pada setiap Faktur/Laporan yang Anda cetak.' : '*This data will be used as the letterhead for every Invoice/Report you print.'}</p>
-          </div>
-        </div>
-
-        {/* AI Configuration */}
-        <div className="glass-panel animate-slide-up" style={sectionStyle}>
-          <span style={headStyle}>{language === 'id' ? '🤖 Konfigurasi AI' : '🤖 AI Configuration'}</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div className="form-group">
-              <label>Gemini API Key</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type={showApiKey ? 'text' : 'password'}
-                  value={geminiApiKey}
-                  onChange={e => setGeminiApiKey(e.target.value)}
-                  placeholder={language === 'id' ? 'Masukkan API Key Gemini...' : 'Enter Gemini API Key...'}
-                  style={{ flex: 1 }}
-                />
-                <button className="btn btn-secondary btn-sm" onClick={() => setShowApiKey(!showApiKey)} style={{ flexShrink: 0 }}>
-                  {showApiKey ? '🙈' : '👁️'}
-                </button>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {geminiApiKey ? (
-                <span style={{ fontSize: '0.78rem', color: 'var(--accent-primary)', fontWeight: 600 }}>✅ {language === 'id' ? 'API Key sudah diatur' : 'API Key is set'}</span>
-              ) : (
-                <span style={{ fontSize: '0.78rem', color: 'var(--accent-warning)', fontWeight: 600 }}>⚠️ {language === 'id' ? 'API Key belum diatur' : 'API Key not set'}</span>
-              )}
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              {language === 'id'
-                ? '* Dapatkan API Key gratis dari '
-                : '* Get a free API Key from '}
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-secondary)', textDecoration: 'underline' }}>aistudio.google.com/apikey</a>
-              {language === 'id'
-                ? '. API Key ini diperlukan untuk fitur AI Scanner.'
-                : '. This API Key is required for the AI Scanner feature.'}
-            </p>
           </div>
         </div>
 

@@ -12,7 +12,7 @@ interface Message {
 }
 
 export default function AiChatbotPage() {
-  const { language, geminiApiKey, activeTransactions } = useAppContext();
+  const { language, activeTransactions } = useAppContext();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,14 +29,6 @@ export default function AiChatbotPage() {
   const handleSendMessage = async (textToSend: string) => {
     const trimmedText = textToSend.trim();
     if (!trimmedText) return;
-    if (!geminiApiKey) {
-      setError(
-        isId
-          ? '⚠️ API Key Gemini belum diatur. Silakan masukkan di halaman Settings → AI Configuration.'
-          : '⚠️ Gemini API Key not set. Please enter it in Settings → AI Configuration.'
-      );
-      return;
-    }
 
     setError('');
     const userMsg: Message = {
@@ -61,7 +53,6 @@ export default function AiChatbotPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: chatHistory,
-          apiKey: geminiApiKey,
           transactions: activeTransactions,
         }),
       });
@@ -440,28 +431,6 @@ export default function AiChatbotPage() {
       </div>
 
       <div className="page-content">
-        {/* API Key Guard */}
-        {!geminiApiKey ? (
-          <div className="glass-panel animate-slide-up" style={{ padding: '36px 24px', textAlign: 'center', maxWidth: 600, margin: '20px auto 0' }}>
-            <div style={{ fontSize: 50, marginBottom: 14 }}>🤖</div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 8 }}>
-              {isId ? 'Konfigurasi Gemini API Key Diperlukan' : 'Gemini API Key Required'}
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.6, marginBottom: 20 }}>
-              {isId
-                ? 'Fitur audit dan deteksi fraud AI membutuhkan Gemini API Key yang valid. Dapatkan kunci gratis Anda dan tempelkan di halaman pengaturan.'
-                : 'The AI audit and fraud detection features require a valid Gemini API Key. Get your free API key and configure it in settings.'}
-            </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-                🔑 {isId ? 'Dapatkan Kunci' : 'Get Free Key'}
-              </a>
-              <a href="/settings" className="btn btn-primary">
-                ⚙️ {isId ? 'Pergi ke Pengaturan' : 'Go to Settings'}
-              </a>
-            </div>
-          </div>
-        ) : (
           <div className="chatbot-container">
             {/* Error Message */}
             {error && (
@@ -635,7 +604,7 @@ export default function AiChatbotPage() {
               </div>
             </div>
           </div>
-        )}
+          </div>
       </div>
     </>
   );
