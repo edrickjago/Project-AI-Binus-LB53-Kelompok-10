@@ -3,15 +3,10 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 // ─── Key Pool ────────────────────────────────────────────────────────────────
 // All 7 keys are tried in round-robin order. On quota / rate-limit errors the
 // rotator advances to the next key automatically so no request is dropped.
-const GEMINI_API_KEYS: string[] = [
-  process.env.GEMINI_API_KEY_1 || '',
-  process.env.GEMINI_API_KEY_2 || '',
-  process.env.GEMINI_API_KEY_3 || '',
-  process.env.GEMINI_API_KEY_4 || '',
-  process.env.GEMINI_API_KEY_5 || '',
-  process.env.GEMINI_API_KEY_6 || '',
-  process.env.GEMINI_API_KEY_7 || '',
-].filter(Boolean);
+const GEMINI_API_KEYS: string[] = (process.env.GEMINI_API_KEYS || '')
+  .split(',')
+  .map(key => key.trim())
+  .filter(Boolean);
 
 // ─── Model Priority ───────────────────────────────────────────────────────────
 // Confirmed available via API. Newest / most capable first.
