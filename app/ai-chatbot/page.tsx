@@ -604,7 +604,6 @@ export default function AiChatbotPage() {
               </div>
             </div>
           </div>
-          </div>
       </div>
     </>
   );
