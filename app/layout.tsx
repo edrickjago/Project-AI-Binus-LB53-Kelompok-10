@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Providers from './providers';
-import Sidebar from '../components/Sidebar';
+import AppShell from '../components/AppShell';
 
 export const metadata: Metadata = {
-  title: 'KasFlow — Keuangan Cerdas',
-  description: 'Aplikasi akuntansi dan manajemen arus kas keuangan personal',
+  title: 'KasFlow — Smart Financial Management',
+  description: 'AI-powered accounting and cash flow management for modern businesses. Track transactions, analyze spending, detect fraud, and generate financial reports.',
 };
 
 export default function RootLayout({
@@ -17,10 +17,9 @@ export default function RootLayout({
     <html lang="id">
       <body>
         <Providers>
-          <div className="app-shell">
-            <Sidebar />
-            <main className="main-content">{children}</main>
-          </div>
+          <AppShell>
+            {children}
+          </AppShell>
         </Providers>
       </body>
     </html>

@@ -1,15 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { t, theme, setTheme, language, setLanguage, accounts, activeAccountId, setActiveAccountId } = useAppContext();
+  const { user, logout } = useAuth();
 
   const mainItems = [
-    { href: '/', icon: '📊', label: 'Dashboard' },
+    { href: '/dashboard', icon: '📊', label: 'Dashboard' },
     { href: '/ai-scanner', icon: '🤖', label: 'AI Scanner' },
     { href: '/ai-chatbot', icon: '💬', label: language === 'id' ? 'Deteksi Fraud AI' : 'AI Fraud Detector' },
     { href: '/transactions', icon: '💳', label: language === 'id' ? 'Transaksi' : 'Transactions' },
@@ -34,6 +37,11 @@ export default function Sidebar() {
     </Link>
   );
 
+  const handleLogout = () => {
+    logout();
+    router.push('/landing');
+  };
+
   return (
     <aside className="sidebar">
       {/* Logo */}
@@ -41,6 +49,17 @@ export default function Sidebar() {
         <div className="sidebar-logo-icon">💰</div>
         <span className="sidebar-logo-text">KasFlow</span>
       </div>
+
+      {/* User Profile */}
+      {user && (
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">{user.avatar}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{user.name}</div>
+            <div className="sidebar-user-email">{user.email}</div>
+          </div>
+        </div>
+      )}
 
       {/* Account Selector */}
       <div className="account-selector">
@@ -76,6 +95,12 @@ export default function Sidebar() {
         <button className={`pref-btn ${language === 'en' ? 'active' : ''}`} onClick={() => setLanguage('en')}>🇺🇸</button>
         <button className={`pref-btn ${language === 'id' ? 'active' : ''}`} onClick={() => setLanguage('id')}>🇮🇩</button>
       </div>
+
+      {/* Logout */}
+      <button className="sidebar-logout" onClick={handleLogout}>
+        <span>🚪</span>
+        <span>Sign Out</span>
+      </button>
 
       <div className="sidebar-footer">KasFlow v2.0 · © 2026</div>
     </aside>
