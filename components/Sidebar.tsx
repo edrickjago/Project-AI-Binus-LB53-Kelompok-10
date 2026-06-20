@@ -53,7 +53,13 @@ export default function Sidebar() {
       {/* User Profile */}
       {user && (
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">{user.avatar}</div>
+          <div className="sidebar-user-avatar">
+            {user.avatar.startsWith('http') ? (
+              <img src={user.avatar} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              user.avatar
+            )}
+          </div>
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{user.name}</div>
             <div className="sidebar-user-email">{user.email}</div>
