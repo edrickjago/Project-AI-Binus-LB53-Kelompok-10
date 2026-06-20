@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface User {
   name: string;
@@ -13,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   signup: (name: string, email: string, password: string) => Promise<{ error: string | null }>;
+  loginWithGoogle: () => Promise<{ error: string | null }>;
   logout: () => void;
 }
 
@@ -26,20 +28,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
-    } catch {}
-    setIsLoading(false);
+    // Listen to Supabase Auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser({
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar_url || (session.user.email ? session.user.email.charAt(0).toUpperCase() : 'U'),
+        });
+        setIsLoading(false);
+      } else {
+        // Fallback to local storage if no Supabase user
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            setUser(JSON.parse(stored));
+          } else {
+            setUser(null);
+          }
+        } catch {}
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const loginWithGoogle = async (): Promise<{ error: string | null }> => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      return { error: error?.message || null };
+    } catch (err: any) {
+      return { error: err.message || 'An unexpected error occurred.' };
+    }
+  };
 
   const login = useCallback(async (email: string, password: string): Promise<{ error: string | null }> => {
     await new Promise(r => setTimeout(r, 800)); // simulate network
     try {
+      // First try Supabase auth
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (!error && data?.user) return { error: null };
+
+      // Fallback to local dummy auth
       const usersRaw = localStorage.getItem(USERS_KEY);
       const users: Array<{ name: string; email: string; password: string }> = usersRaw ? JSON.parse(usersRaw) : [];
       const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+      
       if (!found) return { error: 'Invalid email or password.' };
+      
       const userData: User = {
         name: found.name,
         email: found.email,
@@ -56,6 +99,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = useCallback(async (name: string, email: string, password: string): Promise<{ error: string | null }> => {
     await new Promise(r => setTimeout(r, 800));
     try {
+      // Try Supabase Auth first
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: { data: { full_name: name } }
+      });
+
+      if (!error && data?.user) {
+        // Automatically handle if email confirmation is disabled
+        return { error: null };
+      }
+
+      // Fallback to local dummy auth
       const usersRaw = localStorage.getItem(USERS_KEY);
       const users: Array<{ name: string; email: string; password: string }> = usersRaw ? JSON.parse(usersRaw) : [];
       if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
@@ -72,13 +128,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
