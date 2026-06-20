@@ -111,15 +111,16 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  // DB State
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [coa, setCoa] = useState<ChartOfAccount[]>(DEFAULT_COA);
-  const [manualJournalEntries, setManualJournalEntries] = useState<JournalEntry[]>([]);
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
+  // DB State (Persisted Locally fallback)
+  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('kasflow_txs', []);
+  const [budgets, setBudgets] = useLocalStorage<Budget[]>('kasflow_budgets', []);
+  const [accounts, setAccounts] = useLocalStorage<Account[]>('kasflow_accs', [{ ...DEFAULT_ACCOUNT, id: 'default' }]);
+  const [coa, setCoa] = useLocalStorage<ChartOfAccount[]>('kasflow_coa', DEFAULT_COA);
+  const [manualJournalEntries, setManualJournalEntries] = useLocalStorage<JournalEntry[]>('kasflow_je', []);
+  const [companyProfile, setCompanyProfile] = useLocalStorage<CompanyProfile>('kasflow_cp', {
     name: 'KASFLOW COMPANY', address: 'Jl. Sudirman No. 1, Jakarta', email: 'billing@company.com', phone: '021-555-1234'
   });
+
 
   // Local Preferences
   const [activeAccountId, setActiveAccountId] = useLocalStorage<string>('kasflow_activeAccount', 'all');
