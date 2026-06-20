@@ -28,7 +28,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Listen to Supabase Auth state changes
+    const initializeAuth = async () => {
+      // 1. Try to get the active Supabase session (this will wait for OAuth callbacks to parse)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setUser({
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          avatar: session.user.user_metadata?.avatar_url || (session.user.email ? session.user.email.charAt(0).toUpperCase() : 'U'),
+        });
+      } else {
+        // 2. Fallback to local storage if no Supabase user
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            setUser(JSON.parse(stored));
+          } else {
+            setUser(null);
+          }
+        } catch {}
+      }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
+
+    // Listen to Supabase Auth state changes for subsequent logins/logouts
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser({
@@ -38,16 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         setIsLoading(false);
       } else {
-        // Fallback to local storage if no Supabase user
         try {
           const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) {
-            setUser(JSON.parse(stored));
-          } else {
-            setUser(null);
-          }
+          if (!stored) setUser(null);
         } catch {}
-        setIsLoading(false);
       }
     });
 
